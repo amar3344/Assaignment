@@ -1,12 +1,11 @@
 import { View, Text, FlatList, Image, StyleSheet, TouchableOpacity, ActivityIndicator, TextInput } from 'react-native'
 import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { addITemToCart, getProductsApi, IProducts } from './redux/ProductsSlicer'
+import { addITemToCart, getProductsApi, IProducts, whishlistItems } from './redux/ProductsSlicer'
 import { AppDispatch, RootState } from './redux/Store'
 import FontAwesome from "react-native-vector-icons/FontAwesome";
 import { scale, verticalScale, moderateScale } from "react-native-size-matters";
 import { Rating } from 'react-native-ratings';
-import Feather from "react-native-vector-icons/Feather";
 
 export default function Home() {
 
@@ -29,6 +28,10 @@ export default function Home() {
     }
   }
 
+  const handleWhishlistItem = (product:IProducts) =>{
+    dispatch(whishlistItems(product))
+  }
+
 
   const renderEachProduct = ({ item, index }: { item: IProducts, index: number }) => {
     return (
@@ -42,7 +45,7 @@ export default function Home() {
           </View>
         </View>
         <View style={styles.rightContainer}>
-          <Text style={styles.titleStyles}>{item.title}</Text>
+          <Text numberOfLines={2} style={styles.titleStyles}>{item.title}</Text>
           <Text style={styles.brandStyle}>Brand : {item.brand}</Text>
           <View style={styles.ratingContainer}>
             <Rating
@@ -67,8 +70,8 @@ export default function Home() {
             <Text style={styles.addToCartText}>Add to cart</Text>
           </TouchableOpacity>
         </View>
-        <TouchableOpacity style={styles.absoluteStyle}>
-          <FontAwesome name='heart' color={"red"} size={moderateScale(15)} />
+        <TouchableOpacity style={styles.absoluteStyle} onPress={()=>handleWhishlistItem(item)}>
+          <FontAwesome name={item.whishList ? 'heart' : 'heart-o'} color={item.whishList ? "red" : "grey"} size={moderateScale(15)} />
         </TouchableOpacity>
         <TouchableOpacity style={styles.absoluteStyle2}>
           <FontAwesome name='share' color={"grey"} size={moderateScale(15)} />
@@ -180,6 +183,7 @@ const styles = StyleSheet.create({
     fontFamily: "Poppins-Medium",
     fontSize: moderateScale(12),
     color: "#000000",
+    width:scale(130),
   },
   rightContainer: {
   },
@@ -222,19 +226,20 @@ const styles = StyleSheet.create({
     width: "100%",
   },
   imageContainer: {
-    height: scale(100),
+    height: scale(150),
     width: scale(120),
     overflow: "hidden",
     borderRadius: moderateScale(10)
   },
   productCard: {
-    height: verticalScale(160),
+    height: verticalScale(180),
     backgroundColor: "#FFFFFF",
     margin: moderateScale(10),
     borderRadius: moderateScale(8),
     padding: moderateScale(10),
     flexDirection: "row",
     gap: scale(10),
-    alignItems: 'center'
+    alignItems: 'center',
+    justifyContent:"space-evenly",
   }
 })

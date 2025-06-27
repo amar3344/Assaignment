@@ -20,7 +20,8 @@ export interface IProducts {
     ],
     "image": string,
     "rating": number,
-    "count" : number
+    "count" : number,
+    "whishList" : boolean,
 }[]
 
 interface IS {
@@ -29,7 +30,8 @@ interface IS {
     currentPage: number,
     totalPages: number,
     hasMore: boolean,
-    cart:IProducts[]
+    cart:IProducts[],
+    whishlist:IProducts[]
 }
 
 const initialState: IS = {
@@ -39,6 +41,7 @@ const initialState: IS = {
     totalPages: 3,
     hasMore: true,
     cart:[],
+    whishlist:[]
 }
 
 export const getProductsApi = createAsyncThunk(
@@ -65,6 +68,10 @@ const allProductsSlicer = createSlice({
         },
         addITemToCart(state,action){
             state.cart = action.payload.cart
+        },
+        whishlistItems(state,action){
+            const updateList = state.products.map((eachItem:IProducts) => eachItem._id === action.payload._id ? {...eachItem,whishList:!eachItem.whishList} : eachItem)
+            state.products = updateList
         }
 
     },
@@ -91,5 +98,5 @@ const allProductsSlicer = createSlice({
     }
 })
 
-export const { resetProducts ,addITemToCart} = allProductsSlicer.actions;
+export const { resetProducts ,addITemToCart,whishlistItems} = allProductsSlicer.actions;
 export default allProductsSlicer.reducer;
