@@ -1,20 +1,26 @@
 import { View, Text, FlatList, Image, StyleSheet, TouchableOpacity, ActivityIndicator, TextInput } from 'react-native'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { addITemToCart, getProductsApi, IProducts, whishlistItems } from './redux/ProductsSlicer'
+import { addITemToCart, getProductsApi, IProducts, whishlistItems,searchedProducts } from './redux/ProductsSlicer'
 import { AppDispatch, RootState } from './redux/Store'
 import FontAwesome from "react-native-vector-icons/FontAwesome";
 import { scale, verticalScale, moderateScale } from "react-native-size-matters";
 import { Rating } from 'react-native-ratings';
+import Feather from "react-native-vector-icons/Feather";
 
 export default function Home() {
 
   const dispatch = useDispatch<AppDispatch>()
   const { loading, products, currentPage, hasMore, cart } = useSelector((state: RootState) => state.products)
+  const [searchInput,setSearchInput] = useState<string>("")
 
   useEffect(() => {
-    dispatch(getProductsApi({ currentPage: currentPage }))
+      getProducts()
   }, [])
+
+  const getProducts = async() =>{
+    await dispatch(getProductsApi({ currentPage: currentPage }))
+  }
 
   const addToCart = (product: IProducts) => {
     const exists = cart.some((eachItem: IProducts) => eachItem._id === product._id)
@@ -87,11 +93,40 @@ export default function Home() {
   };
 
   const renderFooterComponent = () => {
-    return loading && (<ActivityIndicator size="large" color={"blue"} />)
+    return loading ? (
+      <View style={styles.footerStyles}>
+        <ActivityIndicator size="large" color={"blue"} />
+      </View>
+  ):(
+    <View style={styles.footerStyles}>
+    </View>
+  )
+  }
+
+  const getSeachedItems = (input:string) =>{
+    setSearchInput(input)
+    if(input === ""){
+      getProducts()
+    }else{
+      dispatch(searchedProducts(input))
+    }
   }
 
   return (
     <View style={styles.mainContainer}>
+      <View style={styles.searchContainer}>
+        <View style={styles.searchInputContainer}>
+          <Feather name="search" size={moderateScale(20)} color={"#000000"} />
+          <TextInput
+          placeholder='Search....'
+          placeholderTextColor={"#00000050"}
+          value={searchInput}
+          style={styles.inputStyles}
+          onChangeText={getSeachedItems}
+          />
+        </View>
+        <Feather size={moderateScale(20)} color={"#FFFFFF"} name="mic"/>
+      </View>
       <FlatList
         initialNumToRender={10}
         numColumns={1}
@@ -107,25 +142,36 @@ export default function Home() {
 }
 
 const styles = StyleSheet.create({
+  footerStyles:{
+    height:verticalScale(100)
+  },
   mainContainer: {
     paddingHorizontal: moderateScale(10),
     marginTop: verticalScale(7)
+  },
+  searchContainer:{
+    flexDirection: "row",
+    alignItems: "center",
+    gap: scale(5),
+    borderRadius: moderateScale(5),
+    paddingHorizontal: scale(4),
+    marginBottom: verticalScale(8),
+    height:verticalScale(50),
+    backgroundColor:"#2874f0",
   },
   inputStyles: {
     width: "85%",
     fontFamily: "Poppins-Medium",
     fontSize: moderateScale(12),
     color: "#000000",
+    backgroundColor:"#FFFFFF",
+    borderRadius:moderateScale(5)
   },
   searchInputContainer: {
-    borderWidth: 1,
-    borderColor: "#000000",
-    flexDirection: "row",
-    alignItems: "center",
-    gap: scale(5),
-    borderRadius: moderateScale(5),
-    paddingHorizontal: scale(4),
-    marginBottom: verticalScale(8)
+    backgroundColor:"#FFFFFF",
+    borderRadius:moderateScale(5),
+    flexDirection:"row",
+    alignItems:"center",
   },
   absoluteStyle2: {
     position: "absolute",
@@ -208,7 +254,7 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
   },
   buttonContainer: {
-    backgroundColor: "blue",
+    backgroundColor: "#2874f0",
     borderRadius: moderateScale(5),
     justifyContent: "center",
     alignItems: "center",

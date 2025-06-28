@@ -72,6 +72,10 @@ const allProductsSlicer = createSlice({
         whishlistItems(state,action){
             const updateList = state.products.map((eachItem:IProducts) => eachItem._id === action.payload._id ? {...eachItem,whishList:!eachItem.whishList} : eachItem)
             state.products = updateList
+        },
+        searchedProducts(state,action){
+            const updatedList = state.products.filter((eachProduct) => eachProduct.brand.toLocaleLowerCase().includes(action.payload))
+            state.products = updatedList
         }
 
     },
@@ -98,5 +102,5 @@ const allProductsSlicer = createSlice({
     }
 })
 
-export const { resetProducts ,addITemToCart,whishlistItems} = allProductsSlicer.actions;
+export const { resetProducts ,addITemToCart,whishlistItems,searchedProducts} = allProductsSlicer.actions;
 export default allProductsSlicer.reducer;
