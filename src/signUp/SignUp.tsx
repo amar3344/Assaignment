@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { View, Text, StyleSheet, StatusBar, TouchableOpacity, TextInput } from "react-native";
+import { View, Text, StyleSheet, StatusBar, TouchableOpacity, TextInput, Alert } from "react-native";
 import { responsiveWidth, responsiveHeight, responsiveFontSize } from "react-native-responsive-dimensions";
 import Entypo from "react-native-vector-icons/Entypo";
 import Feather from "react-native-vector-icons/Feather";
@@ -20,8 +20,15 @@ interface IProps {
 }
 
 const SignUp = (props: IProps) => {
-    const [userData, setuserData] = useState<IUserData>()
+    const [userData, setuserData] = useState<IUserData>({
+        name: "",
+        email: "",
+        password: "",
+        confirmPassword: "",
+        phonenumber:"",
+    })
     const [errorMessage, setErrorMessage] = useState<string>()
+    const [errorInput, setErrorInput] = useState<string>()
     const [isCheckboxtrue, setCheckboxtrue] = useState<boolean>()
     const [focusInput, setFocusInput] = useState({
         name: false,
@@ -88,6 +95,60 @@ const SignUp = (props: IProps) => {
     const handleForgetPasswordScreen = () => {
         props.navigation.navigate("ForgetPassword")
     }
+    const handleCreateAccount = async () => {
+        console.log("CLIKED")
+        try {
+            const url = "http://192.168.29.231:5000/api/users/createuser"
+            const requestBody = {
+                name: "prabhas raju",
+                email: "king33@yopmail.com",
+                password: "test@12345",
+                confirm_password: "test@12345",
+            }
+            const options = {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(requestBody)
+            }
+            const data = await fetch(url, options)
+            const response = await data.json()
+            console.log(response, "<<<<<<")
+        } catch (error:any) {
+            console.log(error.message)
+        }
+        // setErrorMessage("")
+        // setErrorInput("")
+        // console.log(userData?.name,"<<<<USERDATA")
+        // if (userData?.name === "" || userData?.name === undefined) {
+        //     setErrorMessage("Please Enter Name")
+        //     setErrorInput("name")
+        // } else if (userData?.email === "" || userData?.email === undefined) {
+        //     setErrorMessage("Please Enter Email")
+        //     setErrorInput("email")
+        // } else if (userData?.password === "" || userData?.password === undefined) {
+        //     setErrorMessage("Please Enter Password")
+        //     setErrorInput("password")
+        // } else if (userData?.confirmPassword === "" || userData?.confirmPassword === undefined) {
+        //     setErrorMessage("Please Enter Password")
+        //     setErrorInput("confirmPassword")
+        // } else if (userData?.confirmPassword !== userData?.password || userData?.confirmPassword === undefined) {
+        //     setErrorMessage("confirm password should match with password")
+        //     setErrorInput("confirmPassword")
+        // } else {
+        //     const addnewUser = {
+        //         name: userData?.name,
+        //         email: userData?.email,
+        //         password: userData?.password,
+        //         confirm_password: userData?.confirmPassword
+        //     }
+        //     Alert.alert("Message", JSON.stringify(addnewUser))
+        // }
+    }
+    const handleLogin = () => {
+
+    }
     return (
         <View style={styles.mainContainer}>
             <StatusBar barStyle={"dark-content"} />
@@ -111,26 +172,32 @@ const SignUp = (props: IProps) => {
                         <View style={styles.horizontalLine} />
                     </View>
                     {isSignUpScreen && (
-                        <View style={[styles.inputContainer, focusInput.name && { borderWidth: 1, borderColor: "#3461FD" }]}>
-                            <TextInput
-                                value={userData?.name}
-                                placeholder="Name"
-                                placeholderTextColor={"#7C8BA0"}
-                                style={styles.inputTextStyle}
-                                onChangeText={getUserName}
-                                onFocus={() => setInputFocus("name")}
-                            />
+                        <View>
+                            <View style={[styles.inputContainer, focusInput.name && { borderWidth: 1, borderColor: "#3461FD" }]}>
+                                <TextInput
+                                    value={userData?.name}
+                                    placeholder="Name"
+                                    placeholderTextColor={"#7C8BA0"}
+                                    style={styles.inputTextStyle}
+                                    onChangeText={getUserName}
+                                    onFocus={() => setInputFocus("name")}
+                                />
+                            </View>
+                            {errorInput === "name" && <Text style={styles.errorMessageStyles}>{errorMessage}</Text>}
                         </View>
                     )}
-                    <View style={[styles.inputContainer, focusInput.email && { borderWidth: 1, borderColor: "#3461FD" }]}>
-                        <TextInput
-                            value={userData?.email}
-                            placeholder="Email/Phonenumber"
-                            placeholderTextColor={"#7C8BA0"}
-                            style={styles.inputTextStyle}
-                            onChangeText={getEmailOrPhonenumber}
-                            onFocus={() => setInputFocus("email")}
-                        />
+                    <View>
+                        <View style={[styles.inputContainer, focusInput.email && { borderWidth: 1, borderColor: "#3461FD" }]}>
+                            <TextInput
+                                value={userData?.email}
+                                placeholder="Email/Phonenumber"
+                                placeholderTextColor={"#7C8BA0"}
+                                style={styles.inputTextStyle}
+                                onChangeText={getEmailOrPhonenumber}
+                                onFocus={() => setInputFocus("email")}
+                            />
+                        </View>
+                        {errorInput === "email" && <Text style={styles.errorMessageStyles}>{errorMessage}</Text>}
                     </View>
                     <View style={[styles.inputContainer, focusInput.password && { borderWidth: 1, borderColor: "#3461FD" }]}>
                         <TextInput
@@ -163,7 +230,7 @@ const SignUp = (props: IProps) => {
                             </TouchableOpacity>
                         </View>
                     )}
-                    <Text style={styles.errorMessageStyles}>{errorMessage}</Text>
+                    {/* <Text style={styles.errorMessageStyles}>{errorMessage}</Text> */}
                     {isSignUpScreen && (
                         <View style={styles.rowContainer2}>
                             <TouchableOpacity onPress={handleCheckbox}>
@@ -172,7 +239,7 @@ const SignUp = (props: IProps) => {
                             <Text style={styles.agreeTerms}>I'm agree to the <Text style={styles.termsAndPolicy}>terms of service</Text> and <Text style={styles.termsAndPolicy}>privacy policy</Text></Text>
                         </View>
                     )}
-                    <TouchableOpacity style={styles.creaAccContainer}>
+                    <TouchableOpacity style={styles.creaAccContainer} onPress={isSignUpScreen ? handleCreateAccount : handleLogin}>
                         <Text style={styles.createAccountText}>{isSignUpScreen ? "Create Account" : "Login"}</Text>
                     </TouchableOpacity>
                     {isSignUpScreen ? (
@@ -299,6 +366,7 @@ const styles = StyleSheet.create({
         fontSize: responsiveFontSize(1.8),
         color: "#262626",
         paddingVertical: responsiveFontSize(2),
+        width: "100%",
     },
     tagNameStyles: {
         fontFamily: "Poppins-Regular",
