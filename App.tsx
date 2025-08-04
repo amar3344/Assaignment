@@ -17,15 +17,20 @@ import ProfileStack from './src/ProfileStack';
 import { useState } from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 import SignUp from './src/signUp/SignUp';
+import Toast from 'react-native-toast-message';
+import ForgetPassword from './src/forgetPassword/ForgetPassword';
+import ResetPassword from './src/resetPassword/ResetPassword';
 
 const Tab = createBottomTabNavigator()
-const Screen = createStackNavigator()
+const Stack = createStackNavigator()
 
 const AuthNavigation = () => {
   return (
-    <Screen.Navigator screenOptions={{headerShown:false}}>
-      <Screen.Screen name="SignUp" component={SignUp} />
-    </Screen.Navigator>
+    <Stack.Navigator screenOptions={{headerShown:false}}>
+      <Stack.Screen name="SignUp" component={SignUp} />
+      <Stack.Screen name="ForgetPassword" component={ForgetPassword}/>
+      <Stack.Screen name="ResetPassword" component={ResetPassword}/>
+    </Stack.Navigator>
   )
 }
 
@@ -68,6 +73,7 @@ function App() {
       <NavigationContainer>
         {token ? AppNavigation() : AuthNavigation()}
       </NavigationContainer>
+       <Toast />
     </Provider>
   );
 }

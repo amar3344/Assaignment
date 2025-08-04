@@ -1,14 +1,14 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { View, Text, StyleSheet, StatusBar, TouchableOpacity, TextInput, Alert } from "react-native";
 import { responsiveWidth, responsiveHeight, responsiveFontSize } from "react-native-responsive-dimensions";
 import Entypo from "react-native-vector-icons/Entypo";
 import Feather from "react-native-vector-icons/Feather";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
+import Toast from 'react-native-toast-message';
 
 interface IUserData {
     name: string,
     email: string,
-    phonenumber: string,
     password: string,
     confirmPassword: string,
 }
@@ -20,13 +20,7 @@ interface IProps {
 }
 
 const SignUp = (props: IProps) => {
-    const [userData, setuserData] = useState<IUserData>({
-        name: "",
-        email: "",
-        password: "",
-        confirmPassword: "",
-        phonenumber:"",
-    })
+    const [userData, setuserData] = useState<IUserData>({ name: '', email: '', password: '', confirmPassword: '' });
     const [errorMessage, setErrorMessage] = useState<string>()
     const [errorInput, setErrorInput] = useState<string>()
     const [isCheckboxtrue, setCheckboxtrue] = useState<boolean>()
@@ -40,9 +34,32 @@ const SignUp = (props: IProps) => {
     const [isPasswordVisible, setPasswordVisible] = useState<boolean>(false)
     const [iscPasswordVisible, setcPasswordVisible] = useState<boolean>(false)
 
+    useEffect(() => {
+       
+    }, [userData.confirmPassword]);
+
+    const checkerValidEmail = () => {
+        const regex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/
+        const validEmail = regex.test(userData.email)
+        console.log(validEmail, "validEmail<<<<<")
+        return validEmail
+    }
+
     const getUserName = (name: string) => {
-        if (userData?.name) {
+        if (userData) {
             let updateUserData = { ...userData, name: name }
+            setuserData(updateUserData)
+        }
+    }
+    const getEmail = (text: string) => {
+        if (userData) {
+            let updateUserData = { ...userData, email: text }
+            setuserData(updateUserData)
+        }
+    }
+    const getUserPhonenumber = (text: string) => {
+        if (userData) {
+            let updateUserData = { ...userData, phonenumber: text }
             setuserData(updateUserData)
         }
     }
@@ -55,30 +72,30 @@ const SignUp = (props: IProps) => {
             [input]: true
         })
     }
-    const getEmailOrPhonenumber = (input: string) => {
-        let isMail = input.includes("@")
-        if (isMail && userData?.email) {
-            let updateData = { ...userData, email: input }
-            setuserData(updateData)
-        } else if (userData?.phonenumber) {
-            let updateData = { ...userData, phonenumber: input }
-            setuserData(updateData)
-        }
-    }
+
     const getPasswordText = (password: string) => {
-        if (userData?.password) {
-            let data = { ...userData, password: password }
-            setuserData(data)
-        }
+        let data = { ...userData, password: password }
+        setuserData(data)
     }
     const getconfirmPasswordText = (input: string) => {
-        if (userData?.confirmPassword) {
-            let updateData = { ...userData, confirmPassword: input }
-            setuserData(updateData)
-        }
-        if (userData?.password !== userData?.confirmPassword) {
+        let updateData = { ...userData, confirmPassword: input }
+        setuserData(updateData)
+         if (userData.password !== input) {
             setErrorMessage("Confirm Password should match with Password")
+            setErrorInput("confirmPassword")
+        }else{
+            setErrorMessage("")
+            setErrorInput("")
         }
+    }
+    const showToastMessage = (message:string) => {
+        Toast.show({
+            type: 'info',
+            text1: 'Signup Failed',
+            text2: message,
+            position:"bottom",
+            visibilityTime:30000
+        });
     }
     const handleCheckbox = () => {
         setCheckboxtrue(p => !p)
@@ -96,55 +113,52 @@ const SignUp = (props: IProps) => {
         props.navigation.navigate("ForgetPassword")
     }
     const handleCreateAccount = async () => {
-        console.log("CLIKED")
-        try {
-            const url = "http://192.168.29.231:5000/api/users/createuser"
-            const requestBody = {
-                name: "prabhas raju",
-                email: "king33@yopmail.com",
-                password: "test@12345",
-                confirm_password: "test@12345",
-            }
-            const options = {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(requestBody)
-            }
-            const data = await fetch(url, options)
-            const response = await data.json()
-            console.log(response, "<<<<<<")
-        } catch (error:any) {
-            console.log(error.message)
+        setErrorMessage("")
+        setErrorInput("")
+        if (userData.name === "") {
+            setErrorMessage("Please Enter Name")
+            setErrorInput("name")
+        } else if (userData.email === "") {
+            setErrorMessage("Please Enter Email")
+            setErrorInput("email")
+        } else if (!checkerValidEmail()) {
+            setErrorMessage("Please Enter Valid Email")
+            setErrorInput("email")
         }
-        // setErrorMessage("")
-        // setErrorInput("")
-        // console.log(userData?.name,"<<<<USERDATA")
-        // if (userData?.name === "" || userData?.name === undefined) {
-        //     setErrorMessage("Please Enter Name")
-        //     setErrorInput("name")
-        // } else if (userData?.email === "" || userData?.email === undefined) {
-        //     setErrorMessage("Please Enter Email")
-        //     setErrorInput("email")
-        // } else if (userData?.password === "" || userData?.password === undefined) {
-        //     setErrorMessage("Please Enter Password")
-        //     setErrorInput("password")
-        // } else if (userData?.confirmPassword === "" || userData?.confirmPassword === undefined) {
-        //     setErrorMessage("Please Enter Password")
-        //     setErrorInput("confirmPassword")
-        // } else if (userData?.confirmPassword !== userData?.password || userData?.confirmPassword === undefined) {
-        //     setErrorMessage("confirm password should match with password")
-        //     setErrorInput("confirmPassword")
-        // } else {
-        //     const addnewUser = {
-        //         name: userData?.name,
-        //         email: userData?.email,
-        //         password: userData?.password,
-        //         confirm_password: userData?.confirmPassword
-        //     }
-        //     Alert.alert("Message", JSON.stringify(addnewUser))
-        // }
+        else if (userData.password === "") {
+            setErrorMessage("Please Enter Password")
+            setErrorInput("password")
+        } else if (userData.confirmPassword === "") {
+            setErrorMessage("Please Enter Password")
+            setErrorInput("confirmPassword")
+        } else {
+            try {
+                const url = "http://192.168.29.231:5000/api/users/createuser"
+                const addnewUser = {
+                    name: userData?.name,
+                    email: userData?.email,
+                    password: userData?.password,
+                    confirm_password: userData?.confirmPassword
+                }
+                const options = {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(addnewUser)
+                }
+                const data = await fetch(url, options)
+                const response = await data.json()
+                if(response.message === "User Created Successfully"){
+                    props.navigation.navigate("Home")
+                }else{
+                    showToastMessage(response.message)
+                }
+                console.log("CREATED USER>>>>>>",response)
+            } catch (error: any) {
+                console.log(error.message)
+            }
+        }
     }
     const handleLogin = () => {
 
@@ -180,6 +194,7 @@ const SignUp = (props: IProps) => {
                                     placeholderTextColor={"#7C8BA0"}
                                     style={styles.inputTextStyle}
                                     onChangeText={getUserName}
+                                    // onChangeText={(text) => setuserData({ ...userData, name: text })}
                                     onFocus={() => setInputFocus("name")}
                                 />
                             </View>
@@ -189,48 +204,53 @@ const SignUp = (props: IProps) => {
                     <View>
                         <View style={[styles.inputContainer, focusInput.email && { borderWidth: 1, borderColor: "#3461FD" }]}>
                             <TextInput
-                                value={userData?.email}
-                                placeholder="Email/Phonenumber"
+                                value={userData.email}
+                                placeholder="Email"
                                 placeholderTextColor={"#7C8BA0"}
                                 style={styles.inputTextStyle}
-                                onChangeText={getEmailOrPhonenumber}
+                                onChangeText={getEmail}
                                 onFocus={() => setInputFocus("email")}
                             />
                         </View>
                         {errorInput === "email" && <Text style={styles.errorMessageStyles}>{errorMessage}</Text>}
                     </View>
-                    <View style={[styles.inputContainer, focusInput.password && { borderWidth: 1, borderColor: "#3461FD" }]}>
-                        <TextInput
-                            value={userData?.password}
-                            placeholder="Password"
-                            placeholderTextColor={"#7C8BA0"}
-                            style={styles.inputTextStyle}
-                            onChangeText={getPasswordText}
-                            onFocus={() => setInputFocus("password")}
-                        />
-                        <TouchableOpacity onPress={handlePasswordVisibility}>
-                            <Feather name={isPasswordVisible ? "eye" : "eye-off"} color={"#7C8BA0"} size={responsiveFontSize(2)} />
-                        </TouchableOpacity>
+                    <View>
+                        <View style={[styles.inputContainer, focusInput.password && { borderWidth: 1, borderColor: "#3461FD" }]}>
+                            <TextInput
+                                value={userData?.password}
+                                placeholder="Password"
+                                placeholderTextColor={"#7C8BA0"}
+                                style={styles.inputTextStyle}
+                                onChangeText={getPasswordText}
+                                onFocus={() => setInputFocus("password")}
+                            />
+                            <TouchableOpacity onPress={handlePasswordVisibility}>
+                                <Feather name={isPasswordVisible ? "eye" : "eye-off"} color={"#7C8BA0"} size={responsiveFontSize(2)} />
+                            </TouchableOpacity>
+                        </View>
+                        {errorInput === "password" && <Text style={styles.errorMessageStyles}>{errorMessage}</Text>}
                     </View>
                     {!isSignUpScreen && (
                         <Text onPress={handleForgetPasswordScreen} style={styles.forgetText}>Forget Passoword? </Text>
                     )}
                     {isSignUpScreen && (
-                        <View style={[styles.inputContainer, focusInput.cPassword && { borderWidth: 1, borderColor: "#3461FD" }]}>
-                            <TextInput
-                                value={userData?.password}
-                                placeholder="Confirm Password"
-                                placeholderTextColor={"#7C8BA0"}
-                                style={styles.inputTextStyle}
-                                onChangeText={getconfirmPasswordText}
-                                onFocus={() => setInputFocus("cPassword")}
-                            />
-                            <TouchableOpacity onPress={handleCPasswordVisibility}>
-                                <Feather name={iscPasswordVisible ? "eye" : "eye-off"} color={"#7C8BA0"} size={responsiveFontSize(2)} />
-                            </TouchableOpacity>
+                        <View>
+                            <View style={[styles.inputContainer, focusInput.cPassword && { borderWidth: 1, borderColor: "#3461FD" }]}>
+                                <TextInput
+                                    value={userData?.confirmPassword}
+                                    placeholder="Confirm Password"
+                                    placeholderTextColor={"#7C8BA0"}
+                                    style={styles.inputTextStyle}
+                                    onChangeText={getconfirmPasswordText}
+                                    onFocus={() => setInputFocus("cPassword")}
+                                />
+                                <TouchableOpacity onPress={handleCPasswordVisibility}>
+                                    <Feather name={iscPasswordVisible ? "eye" : "eye-off"} color={"#7C8BA0"} size={responsiveFontSize(2)} />
+                                </TouchableOpacity>
+                            </View>
+                            {errorInput === "confirmPassword" && (<Text style={styles.errorMessageStyles}>{errorMessage}</Text>)}
                         </View>
                     )}
-                    {/* <Text style={styles.errorMessageStyles}>{errorMessage}</Text> */}
                     {isSignUpScreen && (
                         <View style={styles.rowContainer2}>
                             <TouchableOpacity onPress={handleCheckbox}>
