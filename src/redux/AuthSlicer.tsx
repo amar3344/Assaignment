@@ -10,9 +10,12 @@ const AuthSlicer = createSlice({
     reducers: {
         updateToken: (state) => {
             state.token = "token";
+        },
+        logoutUser:(state)=>{
+            state.token = ""
         }
     }
 });
 
-export const { updateToken } = AuthSlicer.actions;
+export const { updateToken ,logoutUser} = AuthSlicer.actions;
 export default AuthSlicer.reducer;

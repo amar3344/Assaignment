@@ -5,6 +5,9 @@ import Feather from "react-native-vector-icons/Feather";
 import FontAwesome from "react-native-vector-icons/FontAwesome";
 import { request, PERMISSIONS, RESULTS, openSettings } from "react-native-permissions";
 import { ImageLibraryOptions, launchImageLibrary } from "react-native-image-picker";
+import { useDispatch } from 'react-redux';
+import { AppDispatch } from './redux/Store';
+import { logoutUser } from './redux/AuthSlicer';
 
 interface IProps {
   navigation: {
@@ -62,6 +65,7 @@ const Profile = (props: IProps) => {
   const [nameInputDisplay, setNameInputDisplay] = useState<boolean>(false)
   const [email, setEmail] = useState<string>("amar@gmail.com")
   const [emailInputDisplay, setemailInputDisplay] = useState<boolean>(false)
+  const dispatch = useDispatch<AppDispatch>()
 
 
   const openGallery = async () => {
@@ -169,6 +173,9 @@ const Profile = (props: IProps) => {
       </View>
     )
   }
+  const handleLogout = () =>{
+    dispatch(logoutUser())
+  }
   return (
     <View style={styles.profileScreen}>
       <View style={styles.topContainer}>
@@ -188,7 +195,7 @@ const Profile = (props: IProps) => {
       <View style={styles.bottomContainer}>
         {staticTabs.map((eachItem: IStaticTabs) => renderEachTab(eachItem))}
       </View>
-      <TouchableOpacity style={styles.logoutContainer}>
+      <TouchableOpacity style={styles.logoutContainer} onPress={handleLogout}>
         <Text style={styles.logoutTextStyle}>Logout</Text>
         <Feather name="log-out" color={"#FFFFFF"} size={moderateScale(20)} />
       </TouchableOpacity>
