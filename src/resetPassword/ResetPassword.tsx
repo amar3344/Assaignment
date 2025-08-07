@@ -21,8 +21,8 @@ const ResetPassword = (props: IProps) => {
         props.navigation.goBack()
     }
 
-    const navigateToRestPasswordScreen = () => {
-        props.navigation.navigate("ResetPassword")
+    const navigateToOtpScreen = () => {
+        props.navigation.navigate("OTPScreen")
     }
 
     const getNewPasswordInput = (password:string) =>{
@@ -78,7 +78,7 @@ const ResetPassword = (props: IProps) => {
                     </TouchableOpacity>
                 </View>
             </View>
-            <TouchableOpacity style={styles.continueButton} onPress={navigateToRestPasswordScreen}>
+            <TouchableOpacity style={styles.continueButton} onPress={navigateToOtpScreen}>
                 <Text style={styles.continueBtnText}>Submit</Text>
             </TouchableOpacity>
         </View>

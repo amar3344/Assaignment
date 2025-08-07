@@ -7,6 +7,7 @@ import FontAwesome from "react-native-vector-icons/FontAwesome";
 import { scale, verticalScale, moderateScale } from "react-native-size-matters";
 import { Rating } from 'react-native-ratings';
 import Feather from "react-native-vector-icons/Feather";
+import { responsiveHeight } from 'react-native-responsive-dimensions'
 
 export default function Home() {
 
@@ -147,7 +148,7 @@ const styles = StyleSheet.create({
   },
   mainContainer: {
     paddingHorizontal: moderateScale(10),
-    marginTop: verticalScale(7)
+    marginTop: responsiveHeight(5)
   },
   searchContainer:{
     flexDirection: "row",
